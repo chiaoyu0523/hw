@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+                <select id="zipArea"></select>
+                <select id="InformArea"></select>
+                <div class="zipCount"></div>
+                <div class="InformCount"></div>
+                <div class="InformCase"></div>
+                
+                <div class="zipCase"></div>
+            </div>
+</body>
+
+
+<script>
+    var xhr = new XMLHttpRequest();
+        xhr.open('get', "https://work1999.kcg.gov.tw/open1999/ServiceRequestsQuery.asmx/ServiceRequestsQuery", true);
+
+
+        xhr.send();
+        xhr.onload = function () {
+            var data = JSON.parse(xhr.responseText);
+            var InformArea = document.querySelector('#InformArea');
+            var totalInform = {};
+            var totalZip = {};
+            var InformCount = [];
+            var zipCount = [];
+
+            var str = '<p>總共有' + data.length + '筆資料</p>';
+            document.querySelector('.InformCase').innerHTML = str;
+            document.querySelector('.zipCase').innerHTML = str;
+            for (var i = 0; i < data.length; i++) {
+                var InformContent = data[i].InformDesc_
+                if (totalInform[InformContent] == undefined) {
+                    totalInform[InformContent] = 1;
+                    InformCount.push(InformContent)
+                }
+                else {
+                    totalInform[InformContent] += 1;
+                }
+
+                var zipContent = data[i].ZipName_
+                if (totalZip[zipContent] == undefined) {
+                    totalZip[zipContent] = 1;
+                    zipCount.push(zipContent)
+                }
+                else {
+                    totalZip[zipContent] += 1;
+                }
+            }
+            //算Zip的數量 
+            var zip = '<p>共有'+zipCount.length +'個區域'+InformCount.length+'種案件</p>'
+            document.querySelector('.zipCount').innerHTML = zip
+            
+
+            //Inform
+            var InformStr = '<option value="全部">全部</option>'
+            for (var i = 0; i < InformCount.length; i++) {
+                InformStr += '<option value=' + InformCount[i] + '>' + InformCount[i] + '</option>'
+            }
+            document.querySelector('#InformArea').innerHTML = InformStr;
+            InformArea.addEventListener('change', function (e) {
+                if (InformArea.value == "全部") {
+                    var str = '<p>總共有' + data.length + '筆資料</p>';
+                    document.querySelector('.InformCase').innerHTML = str;
+                } else {
+                    for (var i = 0; i < InformCount.length; i++) {
+                        if (InformArea.value == InformCount[i]) {
+                            str = '<p>目前有' + totalInform[InformArea.value] + '筆' + InformArea.value + '的案件</p>'
+                            document.querySelector('.InformCase').innerHTML = str;
+                        }
+                    }
+                }
+            })
+            //Zip
+            var zipStr = '<option value="全部">全部</option>'
+            for (var i = 0; i < zipCount.length; i++) {
+                zipStr += '<option value=' + zipCount[i] + '>' + zipCount[i] + '</option>'
+            }
+            document.querySelector('#zipArea').innerHTML = zipStr;
+            zipArea.addEventListener('change', function (e) {
+                if (zipArea.value == "全部") {
+                    var str = '<p>總共有' + data.length + '筆資料</p>';
+                    document.querySelector('.zipCase').innerHTML = str;
+                } else {
+                    for (var i = 0; i < zipCount.length; i++) {
+                        if (zipArea.value == zipCount[i]) {
+                            str = '<p>目前有' + totalZip[zipArea.value] + '筆' + zipArea.value + '的案件</p>'
+                            document.querySelector('.zipCase').innerHTML = str;
+                        }
+                    }
+                }
+            })
+        }; 
+    
+</script>
+</html>
